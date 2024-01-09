@@ -1,8 +1,7 @@
 <?php
+require_once ('startup.php');
 require_once ('conf2.php');
-
 session_start();
-$_SESSION['onAdmin'] = false;
 function isAdmin(){
     return $_SESSION['onAdmin'] && isset($_SESSION['onAdmin']);
 }
@@ -50,6 +49,13 @@ if(isset($_REQUEST["komment"])) {
         //exit();
     }
 }
+
+if(isset($_REQUEST["kustutakomment"])){
+    global $yhendus;
+    $kask=$yhendus->prepare("UPDATE tantsud SET kommentaarid=' ' WHERE id=?");
+    $kask->bind_param("i", $_REQUEST["kustutakomment"]);
+    $kask->execute();
+}
 ?>
 <!doctype html>
 <html lang="et">
@@ -64,14 +70,20 @@ if(isset($_REQUEST["komment"])) {
 </head>
 
 <body>
-<div id="modal">
-    <div class="modal__window">
-        <a class="modal__close" href="#">X</a>
-        <?php
-        require 'login.php'
-        ?>
+<?php
+if(!isAdmin()) {
+?>
+    <div id="modal">
+        <div class="modal__window">
+            <a class="modal__close" href="#">X</a>
+            <?php
+            require 'login.php'
+            ?>
+        </div>
     </div>
-</div>
+<?php
+}
+?>
 <h1>Tantsud tähtedega</h1>
 <header>
     <?php
@@ -122,8 +134,12 @@ if(isset($_REQUEST["komment"])) {
         echo "<td>".$tantsupaar."</td>";
         echo "<td>".$punktid."</td>";
         echo "<td>".$paev."</td>";
-        echo "<td>".$komment."</td>";
-        $komment=nl2br(htmlspecialchars($komment));
+        echo"<td>".nl2br(htmlspecialchars($komment))."</td>";
+        if(isAdmin()) {
+            echo "<td><a href='?kustutakomment=$id'>Kustuta kommentaari</a></td>
+        ";
+        }
+        if(!isAdmin()) {
         echo "<td>
         <form action='?'>
         <input type='hidden' value='$id' name='komment'>
@@ -131,7 +147,7 @@ if(isset($_REQUEST["komment"])) {
         <input type='submit' value='OK'>
         </form></td>
         ";
-        if(!isAdmin()) {
+
             echo "<td><a href='?heatants=$id'>Lisa +1 punkt</a></td>";
             echo "<td><a href='?pahatants=$id'>Lisa -1 punkt</a></td>";
         }
