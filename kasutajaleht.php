@@ -3,7 +3,11 @@ require_once ('conf2.php');
 
 session_start();
 $_SESSION['onAdmin'] = false;
-if(isset($_REQUEST["paarinimi"]) && !empty($_REQUEST["paarinimi"]) && isAdmin()){
+function isAdmin(){
+    return $_SESSION['onAdmin'] && isset($_SESSION['onAdmin']);
+}
+
+if(isset($_REQUEST["paarinimi"]) && !empty($_REQUEST["paarinimi"]) && !isAdmin()){
     global $yhendus;
     $kask=$yhendus->prepare("INSERT INTO tantsud(tantsupaar, ava_paev) values(?, NOW())");
     $kask->bind_param("s", $_REQUEST["paarinimi"]);
@@ -32,8 +36,19 @@ if(isset($_REQUEST["kustutaminenimi"]) && !empty($_REQUEST["kustutaminenimi"])){
     $kask->bind_param("i", $_REQUEST["kustutaminenimi"]);
     $kask->execute();
 }
-function isAdmin(){
-    return $_SESSION['onAdmin'] && isset($_SESSION['onAdmin']);
+
+//kommentaarid lisamine
+if(isset($_REQUEST["komment"])) {
+    if(isset($_REQUEST["uuskomment"])) {
+        global $yhendus;
+        $kask = $yhendus->prepare("UPDATE tantsud SET kommentaarid=CONCAT(kommentaarid, ?) WHERE id=?");
+        $kommentplus=$_REQUEST["uuskomment"]."\n";
+        $kask->bind_param("si",$kommentplus, $_REQUEST["komment"]);
+        $kask->execute();
+        header("Location: $_SERVER[PHP_SELF]");
+        $yhendus->close();
+        //exit();
+    }
 }
 ?>
 <!doctype html>
@@ -108,6 +123,7 @@ function isAdmin(){
         echo "<td>".$punktid."</td>";
         echo "<td>".$paev."</td>";
         echo "<td>".$komment."</td>";
+        $komment=nl2br(htmlspecialchars($komment));
         echo "<td>
         <form action='?'>
         <input type='hidden' value='$id' name='komment'>
