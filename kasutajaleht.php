@@ -1,9 +1,9 @@
 <?php
-require_once ('startup.php');
-require_once ('conf2.php');
+require_once ('conf.php');
 session_start();
+
 function isAdmin(){
-    return $_SESSION['onAdmin'] && isset($_SESSION['onAdmin']);
+    return isset($_SESSION['onAdmin']) && $_SESSION['onAdmin']==1;
 }
 
 if(isset($_REQUEST["paarinimi"]) && !empty($_REQUEST["paarinimi"]) && !isAdmin()){
@@ -67,6 +67,7 @@ if(isset($_REQUEST["kustutakomment"])){
     <title>Tansud tätedega</title>
     <link rel="stylesheet" type="text/css" href="style/style.css">
     <link rel="stylesheet" type="text/css" href="style/modalLogin.css">
+    <link rel="stylesheet" type="text/css" href="style/modalReg.css">
 </head>
 
 <body>
@@ -77,7 +78,15 @@ if(!isAdmin()) {
         <div class="modal__window">
             <a class="modal__close" href="#">X</a>
             <?php
-            require 'login.php'
+            require('login.php');
+            ?>
+        </div>
+    </div>
+    <div id="modalReg">
+        <div class="modalReg__window">
+            <a class="modalReg__close" href="#">X</a>
+            <?php
+            require('register.php');
             ?>
         </div>
     </div>
@@ -90,12 +99,16 @@ if(!isAdmin()) {
     if(isset($_SESSION['kasutaja'])){
         ?>
         <h1>Tere, <?="$_SESSION[kasutaja]"?></h1>
-        <a href="logout.php">Logi välja</a>
+        <div>
+            <a href="logout.php">Logi välja</a>
+        </div>
         <?php
     } else {
         ?>
         <div class="open">
             <a href="#modal">Logi sisse</a>
+            <br>
+            <a href="#modalReg">Registreerimine</a>
         </div>
         <?php
     }
@@ -113,66 +126,71 @@ if(!isAdmin()) {
         ?>
     </ul>
 </nav>
-        <?php
-        if(isset($_SESSION["kasutaja"])){
-        ?>
-<table>
-    <tr>
-        <th>Tantsupaari nimi</th>
-        <th>Punktid</th>
-        <th>Kuupaev</th>
-        <th>Kommentaarid</th>
-    </tr>
 <?php
-    global $yhendus;
-    $kask=$yhendus->prepare("Select id, tantsupaar, punktid, ava_paev, kommentaarid from tantsud where avalik=1");
-    $kask->bind_result($id, $tantsupaar, $punktid, $paev, $komment);
-    $kask->execute();
-    while($kask->fetch()){
-        echo "<tr>";
-        $tantsupaar=htmlspecialchars($tantsupaar);
-        echo "<td>".$tantsupaar."</td>";
-        echo "<td>".$punktid."</td>";
-        echo "<td>".$paev."</td>";
-        echo"<td>".nl2br(htmlspecialchars($komment))."</td>";
-        if(isAdmin()) {
-            echo "<td><a href='?kustutakomment=$id'>Kustuta kommentaari</a></td>
-        ";
-        }
-        if(!isAdmin()) {
-        echo "<td>
-        <form action='?'>
-        <input type='hidden' value='$id' name='komment'>
-        <input type='text' name='uuskomment' id='uuskomment'>
-        <input type='submit' value='OK'>
-        </form></td>
-        ";
-
-            echo "<td><a href='?heatants=$id'>Lisa +1 punkt</a></td>";
-            echo "<td><a href='?pahatants=$id'>Lisa -1 punkt</a></td>";
-        }
-        echo "<td><a href='?kustutaminenimi=$id'>Kustuta</a></td>";
-        echo "</tr>";
-    }
+if(!isset($_SESSION["kasutaja"])) {
+    echo "<h1 id='eikasutaja'><p>Alustamiseks peate oma kontole sisse logima või registreeruma.</p></h1>";
+}
 ?>
-
+<?php
+if(isset($_SESSION["kasutaja"])) {
+?>
+    <table>
+        <tr>
+            <th>Tantsupaari nimi</th>
+            <th>Punktid</th>
+            <th>Kuupaev</th>
+            <th>Kommentaarid</th>
+        </tr>
     <?php
-    if(!isAdmin()){
-    ?>
-    <form action="?">
-        <lable for="paarinimi">Lisa uus paar</lable>
-        <input type="text" name="paarinimi" id="paarinimi">
-        <input type="submit" value="Lisa paar">
+        global $yhendus;
+        $kask=$yhendus->prepare("Select id, tantsupaar, punktid, ava_paev, kommentaarid from tantsud where avalik=1");
+        $kask->bind_result($id, $tantsupaar, $punktid, $paev, $komment);
+        $kask->execute();
+        while($kask->fetch()){
+            echo "<tr>";
+            $tantsupaar=htmlspecialchars($tantsupaar);
+            echo "<td>".$tantsupaar."</td>";
+            echo "<td>".$punktid."</td>";
+            echo "<td>".$paev."</td>";
+            echo"<td>".nl2br(htmlspecialchars($komment))."</td>";
+            if(isAdmin()) {
+                echo "<td><a href='?kustutakomment=$id'>Kustuta kommentaari</a></td>
+            ";
+            }
+            if(!isAdmin()) {
+            echo "<td>
+            <form action='?'>
+            <input type='hidden' value='$id' name='komment'>
+            <input type='text' name='uuskomment' id='uuskomment'>
+            <input type='submit' value='OK'>
+            </form></td>
+            ";
+
+                echo "<td><a href='?heatants=$id'>Lisa +1 punkt</a></td>";
+                echo "<td><a href='?pahatants=$id'>Lisa -1 punkt</a></td>";
+            }
+            echo "<td><a href='?kustutaminenimi=$id'>Kustuta</a></td>";
+            echo "</tr>";
+        }
+        ?>
+
+        <?php
+        if(!isAdmin()){
+        ?>
+        <form action="?">
+            <lable for="paarinimi">Lisa uus paar</lable>
+            <input type="text" name="paarinimi" id="paarinimi">
+            <input type="submit" value="Lisa paar">
 
 
-    </form>
-    <?php
-    }
-    ?>
-</table>
+        </form>
         <?php
         }
         ?>
+    </table>
+<?php
+}
+?>
 </body>
 </html>
 

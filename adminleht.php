@@ -1,5 +1,5 @@
 <?php
-require_once ('conf2.php');
+require_once ('conf.php');
 
 session_start();
 
@@ -54,12 +54,16 @@ if(isset($_REQUEST["kustutaminenimi"]) && !empty($_REQUEST["kustutaminenimi"])){
     if(isset($_SESSION['kasutaja'])){
         ?>
         <h1>Tere, <?="$_SESSION[kasutaja]"?></h1>
+        <div>
         <a href="logout.php">Logi välja</a>
+        </div>
         <?php
     } else {
         ?>
+            <div>
         <a href="login.php">Logi sisse</a>
-        <?php
+            </div>
+                <?php
     }
     ?>
 </header>

@@ -1,3 +1,3 @@
 <?php
-$_SESSION['onAdmin'] = false;
+$_SESSION['onAdmin'] = true;
 ?>

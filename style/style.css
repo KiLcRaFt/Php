@@ -25,7 +25,7 @@
 h1{
     display: block;
     font-size: 2em;
-    margin-left: 50px;
+    margin-left: 8px;
     font-weight: bold;
 }
 
@@ -55,4 +55,28 @@ thead th:nth-child(4) {
 th,
 td {
     padding: 20px;
+}
+
+div{
+    position: absolute;
+    right: 8px; /* Adjust the value based on your needs */
+    top: 20px;
+    border-end-start-radius: 10px 10px;
+    border-radius: 10px;
+    border: 3px solid #333333;
+    background-color: azure;
+}
+div a{
+    margin: 10px;
+}
+
+#eikasutaja{
+    border: 3px solid #333333;
+    border-radius: 10px;
+    background-color: beige;
+    color: dimgrey;
+}
+
+#eikasutaja p {
+    margin: 10px;
 }

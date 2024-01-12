@@ -1,7 +1,6 @@
 <?php
-require_once("conf2.php");
+require_once("conf.php");
 global $yhendus;
-
 
 //kontrollime kas väljad  login vormis on täidetud
 if (!empty($_POST['login']) && !empty($_POST['pass'])) {
@@ -18,18 +17,20 @@ if (!empty($_POST['login']) && !empty($_POST['pass'])) {
     $kask->execute();
     //kui on, siis loome sessiooni ja suuname
     if ($kask->fetch()) {
-        $_SESSION['tuvastamine'] = 'misiganes';
-        $_SESSION['kasutaja'] = $login;
-        $_SESSION['onAdmin'] = $onAdmin;
-        if($onAdmin == 1){
-            header('Location: adminleht.php');
+            $_SESSION['tuvastamine'] = 'misiganes';
+            $_SESSION['kasutaja'] = $login;
+            $_SESSION['onAdmin'] = $onAdmin;
+            if($onAdmin == 1){
+                echo '<script>window.location.href = "adminleht.php";</script>';
+            }
+            else {
+                echo '<script>window.location.href = "kasutajaleht.php";</script>';
+                $yhendus->close();
+                exit();
+            }
+        
         }
-        else {
-            header('Location: kasutajaleht.php');
-            $yhendus->close();
-            exit();
-        }
-    } else {
+    else {
         echo "kasutaja $login või parool $kryp on vale";
         $yhendus->close();
     }
@@ -41,5 +42,5 @@ if (!empty($_POST['login']) && !empty($_POST['pass'])) {
 <form action="" method="post">
     Login: <input type="text" name="login"><br>
     Password: <input type="password" name="pass"><br>
-    <input type="submit" value="Logi sisse">
+    <input type="submit" value="Logi sisse"">
 </form>
